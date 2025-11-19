@@ -1,0 +1,40 @@
+{
+    "project_name": "Inventory OCR Scanner",
+    "description": "Aplicación web para extraer códigos de inventario de fotografías usando OCR",
+    "type": "web_application",
+    "style": {
+        "theme": "modern_tech",
+        "colors": {
+            "primary": "#2563eb",
+            "secondary": "#1e40af",
+            "accent": "#3b82f6",
+            "background": "#f8fafc",
+            "surface": "#ffffff",
+            "text": "#1e293b",
+            "text_secondary": "#64748b"
+        },
+        "typography": {
+            "font_family": "Inter, sans-serif",
+            "heading_font": "Inter, sans-serif",
+            "body_font": "Inter, sans-serif"
+        },
+        "effects": {
+            "animation": "fade_in_up",
+            "hover_effect": "lift",
+            "background_effect": "gradient_mesh"
+        }
+    },
+    "layout": {
+        "max_width": "1200px",
+        "padding": "2rem",
+        "border_radius": "0.75rem"
+    },
+    "features": [
+        "Carga múltiple de imágenes",
+        "Procesamiento asíncrono OCR",
+        "Descarga de resultados en JSON",
+        "Interfaz moderna con Tailwind CSS",
+        "Contenedor Docker para fácil despliegue",
+        "Soporte para múltiples formatos de imagen"
+    ]
+}
