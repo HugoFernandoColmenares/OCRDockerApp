@@ -14,13 +14,19 @@ RESULTS_FOLDER = os.environ.get('RESULTS_FOLDER', 'results')
 Path(UPLOAD_FOLDER).mkdir(exist_ok=True)
 Path(RESULTS_FOLDER).mkdir(exist_ok=True)
 
+DEV_SECRET_KEY = 'dev-secret-key-change-in-production'
+
 # Application configuration
 class Config:
     """Base configuration class"""
     
     # Flask settings
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+    SECRET_KEY = os.environ.get('SECRET_KEY', DEV_SECRET_KEY)
     MAX_CONTENT_LENGTH = int(os.environ.get('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))  # 16MB
+    APP_PASSWORD = os.environ.get('APP_PASSWORD', '')
+    DATABASE_PATH = os.environ.get('DATABASE_PATH', str(BASE_DIR / 'data' / 'inventory.db'))
+    MAX_STORED_UPLOADS = int(os.environ.get('MAX_STORED_UPLOADS', '100'))
+    UPLOAD_MAX_AGE_DAYS = int(os.environ.get('UPLOAD_MAX_AGE_DAYS', '7'))
     
     # File upload settings
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'webp'}
@@ -58,11 +64,13 @@ class ProductionConfig(Config):
     DEBUG = False
     TESTING = False
     LOG_LEVEL = 'INFO'
-    
-    # Override secret key for production
-    # SECRET_KEY = os.environ.get('SECRET_KEY')
-    # if not SECRET_KEY:
-    #     pass
+    CORS_ORIGINS = [
+        origin.strip()
+        for origin in os.environ.get(
+            'CORS_ORIGINS', 'http://localhost,http://localhost:8000'
+        ).split(',')
+        if origin.strip()
+    ]
 
 class TestingConfig(Config):
     """Testing configuration"""
@@ -85,3 +93,15 @@ def get_config(config_name=None):
         config_name = os.environ.get('FLASK_ENV', 'development')
     
     return config.get(config_name, config['default'])
+
+
+def validate_runtime(cfg):
+    """Refuse a production process that still has the development secret or no operator password."""
+    if getattr(cfg, 'DEBUG', False) or getattr(cfg, 'TESTING', False):
+        return
+    if not cfg.SECRET_KEY or cfg.SECRET_KEY == DEV_SECRET_KEY:
+        raise RuntimeError(
+            'SECRET_KEY must be set to a non-default value when FLASK_ENV=production'
+        )
+    if not cfg.APP_PASSWORD:
+        raise RuntimeError('APP_PASSWORD must be set when FLASK_ENV=production')

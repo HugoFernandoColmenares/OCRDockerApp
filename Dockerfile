@@ -3,7 +3,9 @@ FROM python:3.11-slim
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr \
+    tesseract-ocr-eng \
     tesseract-ocr-spa \
+    libzbar0 \
     libtesseract-dev \
     libgl1 \
     libglib2.0-0 \
@@ -29,7 +31,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Crear directorios para uploads y resultados
-RUN mkdir -p uploads results
+RUN mkdir -p uploads results data
 
 # Establecer permisos
 RUN chmod -R 755 /app
@@ -38,4 +40,4 @@ RUN chmod -R 755 /app
 EXPOSE 8000
 
 # Comando para ejecutar la aplicación
-CMD ["python", "app.py"]
+CMD ["gunicorn", "--config", "gunicorn.conf.py", "app:app"]

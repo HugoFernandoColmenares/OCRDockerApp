@@ -38,8 +38,8 @@ run:
 	python app.py
 
 test:
-	@echo "🧪 Running tests..."
-	python test_app.py
+	@echo "🧪 Running Docker smoke test..."
+	docker compose run --rm --no-deps ocr-app python tests/smoke_test.py
 
 dev:
 	@echo "🔧 Running in development mode..."

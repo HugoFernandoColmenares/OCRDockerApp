@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar · Inventory OCR Scanner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <form method="post" class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">Inventory OCR Scanner</h1>
+        <p class="text-gray-500 mb-6">Clave de operador para este equipo.</p>
+        {% if error %}
+        <p class="mb-4 rounded bg-red-100 text-red-800 px-3 py-2 text-sm">{{ error }}</p>
+        {% endif %}
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Clave</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg">Entrar</button>
+    </form>
+</body>
+</html>

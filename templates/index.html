@@ -8,43 +8,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .upload-zone {
-            border: 2px dashed #3b82f6;
-            transition: all 0.3s ease;
-        }
-        .upload-zone.dragover {
-            border-color: #1d4ed8;
-            background-color: #eff6ff;
-        }
-        .processing {
-            animation: pulse 2s infinite;
-        }
-        .result-card {
-            transition: all 0.3s ease;
-        }
-        .result-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        .code-highlight {
-            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: bold;
-        }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .upload-zone { border: 2px dashed #3b82f6; transition: all 0.3s ease; }
+        .upload-zone.dragover { border-color: #1d4ed8; background-color: #eff6ff; }
+        .processing { animation: pulse 2s infinite; }
+        .result-card { transition: all 0.3s ease; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <!-- Header -->
     <header class="gradient-bg text-white py-6">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between">
@@ -52,60 +23,51 @@
                     <i class="fas fa-barcode text-3xl"></i>
                     <div>
                         <h1 class="text-2xl font-bold">Inventory OCR Scanner</h1>
-                        <p class="text-blue-100 text-sm">Extracción inteligente de códigos de inventario</p>
+                        <p class="text-blue-100 text-sm">Lectura, revisión y exportación de códigos</p>
                     </div>
                 </div>
-                <div class="hidden md:flex items-center space-x-4">
-                    <span class="text-blue-100">Docker Ready</span>
-                    <i class="fab fa-docker text-2xl"></i>
-                </div>
+                <button id="logoutBtn" type="button" class="text-sm bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg">
+                    Salir
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
-        <!-- Upload Section -->
+        <div id="healthBanner" class="hidden mb-4 rounded-lg bg-red-100 text-red-800 px-4 py-3"></div>
+
         <section class="mb-8">
             <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
                     <i class="fas fa-cloud-upload-alt mr-2 text-blue-600"></i>
-                    Cargar Imágenes de Inventario
+                    Cargar imágenes de inventario
                 </h2>
-                
                 <div id="uploadZone" class="upload-zone rounded-lg p-8 text-center mb-4">
                     <i class="fas fa-images text-4xl text-blue-400 mb-4"></i>
                     <h3 class="text-lg font-medium text-gray-700 mb-2">Arrastra tus imágenes aquí</h3>
                     <p class="text-gray-500 mb-4">o haz clic para seleccionar archivos</p>
                     <input type="file" id="fileInput" multiple accept="image/*" class="hidden">
-                    <button onclick="document.getElementById('fileInput').click()" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
-                        Seleccionar Archivos
+                    <button type="button" id="selectBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+                        Seleccionar archivos
                     </button>
                 </div>
-
-                <!-- File List -->
                 <div id="fileList" class="hidden mb-4">
                     <h3 class="font-medium text-gray-700 mb-2">Archivos seleccionados:</h3>
                     <div id="fileNames" class="text-sm text-gray-600"></div>
                 </div>
-
-                <!-- Process Button -->
-                <button id="processBtn" onclick="processFiles()" 
-                        class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <button id="processBtn" type="button" disabled
+                        class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed">
                     <i class="fas fa-magic mr-2"></i>
-                    Procesar Imágenes con OCR
+                    Procesar imágenes
                 </button>
             </div>
         </section>
 
-        <!-- Loading Section -->
         <section id="loadingSection" class="hidden mb-8">
             <div class="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div class="processing">
                     <i class="fas fa-cog fa-spin text-4xl text-blue-600 mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-700 mb-2">Procesando imágenes...</h3>
-                    <p class="text-gray-500">Por favor espera mientras extraemos los códigos de tus imágenes.</p>
+                    <h3 id="progressLabel" class="text-lg font-medium text-gray-700 mb-2">Subiendo imágenes...</h3>
                     <div class="mt-4">
                         <div class="bg-gray-200 rounded-full h-2">
                             <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
@@ -115,55 +77,57 @@
             </div>
         </section>
 
-        <!-- Results Section -->
-        <section id="resultsSection" class="hidden">
+        <section id="resultsSection" class="hidden mb-8">
             <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                        <i class="fas fa-list-alt mr-2 text-green-600"></i>
-                        Resultados del OCR
-                    </h2>
-                    <button id="downloadBtn" onclick="downloadResults()" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-download mr-2"></i>
-                        Descargar JSON
-                    </button>
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">Revisar lote</h2>
+                        <p class="text-sm text-gray-500">Corrige el código y confirma. La exportación usa solo filas confirmadas.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="confirmBtn" type="button" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                            Confirmar lote
+                        </button>
+                        <button id="downloadCsvBtn" type="button" disabled class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-50">
+                            Descargar CSV
+                        </button>
+                        <button id="downloadJsonBtn" type="button" disabled class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg disabled:opacity-50">
+                            Descargar JSON
+                        </button>
+                    </div>
                 </div>
-                
-                <div id="resultsContainer" class="space-y-4">
-                    <!-- Results will be populated here -->
+                <div id="resultsContainer" class="space-y-4"></div>
+            </div>
+        </section>
+
+        <section id="statsSection" class="hidden mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white rounded-lg shadow p-4 text-center">
+                    <h3 class="text-lg font-semibold text-gray-800" id="acceptedCount">0</h3>
+                    <p class="text-gray-600">Aceptadas</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4 text-center">
+                    <h3 class="text-lg font-semibold text-gray-800" id="unreadableCount">0</h3>
+                    <p class="text-gray-600">Sin lectura</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4 text-center">
+                    <h3 class="text-lg font-semibold text-gray-800" id="rejectedCount">0</h3>
+                    <p class="text-gray-600">Rechazadas</p>
                 </div>
             </div>
         </section>
 
-        <!-- Statistics Section -->
-        <section id="statsSection" class="hidden mt-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-white rounded-lg shadow p-4 text-center">
-                    <i class="fas fa-images text-2xl text-blue-600 mb-2"></i>
-                    <h3 class="text-lg font-semibold text-gray-800" id="totalImages">0</h3>
-                    <p class="text-gray-600">Imágenes Procesadas</p>
-                </div>
-                <div class="bg-white rounded-lg shadow p-4 text-center">
-                    <i class="fas fa-barcode text-2xl text-green-600 mb-2"></i>
-                    <h3 class="text-lg font-semibold text-gray-800" id="totalCodes">0</h3>
-                    <p class="text-gray-600">Códigos Extraídos</p>
-                </div>
-                <div class="bg-white rounded-lg shadow p-4 text-center">
-                    <i class="fas fa-clock text-2xl text-purple-600 mb-2"></i>
-                    <h3 class="text-lg font-semibold text-gray-800" id="processingTime">0s</h3>
-                    <p class="text-gray-600">Tiempo de Procesamiento</p>
-                </div>
+        <section>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Lotes recientes</h2>
+                <div id="batchList" class="text-sm text-gray-500">Cargando lotes...</div>
             </div>
         </section>
     </main>
 
-    <!-- Footer -->
     <footer class="bg-gray-800 text-white py-6 mt-12">
         <div class="container mx-auto px-4 text-center">
-            <p class="text-gray-300">
-                © 2024 Inventory OCR Scanner - Desarrollado con Python, Flask y Tailwind CSS
-            </p>
+            <p class="text-gray-300">Inventory OCR Scanner</p>
         </div>
     </footer>
 

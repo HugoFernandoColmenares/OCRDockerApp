@@ -1,16 +1,33 @@
 # Inventory OCR Scanner
 
-Una aplicación web completa para extraer códigos de inventario de fotografías usando reconocimiento óptico de caracteres (OCR). Desarrollada con Python, Flask, Tailwind CSS y contenedorizada con Docker.
+Una aplicación web para leer códigos de inventario desde fotografías, revisarlos y exportar el lote confirmado. Usa decodificación de códigos de barras y QR, con Tesseract solo como respaldo para etiquetas de texto. Está hecha con Python, Flask y Docker.
+
+## Diagramas de llamadas
+
+Generados con [code2flow](https://github.com/scottrogowski/code2flow) a partir del código del repositorio.
+
+### Backend
+
+![Grafo de llamadas del backend](docs/screenshots/backend-call-graph.jpg)
+
+El grafo conecta la carga (`upload_files`), la lectura (`analyze_image`, `decode_symbols`, `extract_ocr_text`), la revisión (`confirm_batch`) y la exportación CSV/JSON con el almacén SQLite.
+
+### Frontend
+
+![Grafo de llamadas del frontend](docs/screenshots/frontend-call-graph.png)
+
+El grafo del navegador muestra la subida con progreso real, la fila de revisión y la exportación del lote guardado.
 
 ## Características
 
-- ✅ **Carga múltiple de imágenes** - Procesa varias fotografías simultáneamente
-- ✅ **OCR gratuito** - Usa Tesseract OCR de código abierto
-- ✅ **Procesamiento inteligente** - Detecta automáticamente códigos de barras, SKUs, números de serie
-- ✅ **Interfaz moderna** - Diseño responsivo con Tailwind CSS y animaciones
-- ✅ **Descarga de resultados** - Genera archivos JSON estructurados
-- ✅ **Contenedor Docker** - Despliegue fácil y reproducible
-- ✅ **API RESTful** - Backend robusto con Flask
+- ✅ **Carga múltiple de imágenes** - Cada archivo queda como aceptado, sin lectura o rechazado
+- ✅ **Código de barras y QR** - La lectura principal usa un decodificador, no una expresión regular
+- ✅ **OCR de respaldo** - Tesseract solo propone códigos con etiqueta (SKU, serie, código)
+- ✅ **Revisión** - El operador corrige o descarta cada fila antes de guardarla
+- ✅ **Historial** - Los lotes quedan en SQLite y siguen ahí después de recargar
+- ✅ **Exportación** - CSV y JSON salen de las filas confirmadas
+- ✅ **Salud del OCR** - `/api/health` falla si Tesseract o el decodificador no están disponibles
+- ✅ **Un operador** - Clave local, secreto distinto del de desarrollo y limpieza de `uploads/`
 
 ## Tecnologías Utilizadas
 
@@ -38,18 +55,26 @@ Una aplicación web completa para extraer códigos de inventario de fotografías
 
 1. **Clonar el repositorio:**
 ```bash
-git clone <url-del-repositorio>
-cd inventory-ocr-scanner
+git clone https://github.com/HugoFernandoColmenares/OCRDockerApp.git
+cd OCRDockerApp
 ```
 
 2. **Construir y ejecutar con Docker Compose:**
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
+
+El servicio escucha con Gunicorn. En este compose local la clave de operador es `ocr-local`. Antes de exponer el servicio, define `SECRET_KEY` y `APP_PASSWORD` en el entorno; con `FLASK_ENV=production` la aplicación no arranca si el secreto sigue siendo el de desarrollo o si no hay clave.
 
 3. **Acceder a la aplicación:**
 - Aplicación principal: http://localhost:8000
 - A través de Nginx: http://localhost
+- Salud: http://localhost:8000/api/health
+
+4. **Comprobar el flujo:**
+```bash
+docker compose run --rm --no-deps ocr-app python tests/smoke_test.py
+```
 
 ### Opción 2: Instalación Manual
 
@@ -75,80 +100,75 @@ python app.py
 
 ## Uso de la Aplicación
 
-### Paso 1: Cargar Imágenes
+### Paso 1: Entrar
+Abre la aplicación e introduce la clave de operador.
+
+### Paso 2: Cargar imágenes
 - Arrastra y suelta las fotografías de inventario
 - O haz clic para seleccionar archivos
 - Formatos soportados: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP
+- La barra de progreso sigue la subida real. Al llegar al 100 % el servidor todavía está leyendo las imágenes.
 
-### Paso 2: Procesar con OCR
-- Haz clic en "Procesar Imágenes con OCR"
-- La aplicación analizará cada imagen
-- Extraerá códigos de barras, SKUs, números de serie, etc.
+### Paso 3: Revisar
+Cada imagen muestra un estado:
 
-### Paso 3: Descargar Resultados
-- Revisa los resultados en pantalla
-- Descarga el archivo JSON con todos los datos
-- Cada resultado incluye texto extraído y códigos identificados
+- **Aceptada**: hay un código propuesto (barras/QR con confianza alta, o una etiqueta OCR con confianza baja)
+- **Sin lectura**: el archivo es una imagen, pero no hay un código utilizable
+- **Rechazada**: la extensión o el contenido no es una imagen
+
+Corrige el código, o marca la fila como descartada, y pulsa **Confirmar lote**. Hasta ese momento la fila no entra en la exportación. El lote queda en SQLite y vuelve a aparecer en **Lotes recientes** después de recargar.
+
+### Paso 4: Exportar
+Con el lote confirmado, descarga CSV o JSON. El CSV trae `filename`, `code_type`, `raw_value`, `corrected_value`, `timestamp` y `status`.
 
 ## Estructura del Proyecto
 
 ```
-inventory-ocr-scanner/
-├── app.py                 # Aplicación Flask principal
-├── requirements.txt       # Dependencias Python
-├── Dockerfile            # Configuración del contenedor
-├── docker-compose.yml    # Orquestación de servicios
-├── nginx.conf           # Configuración de Nginx
-├── templates/           # Plantillas HTML
-│   └── index.html      # Interfaz principal
-├── static/             # Archivos estáticos
-│   └── app.js         # Lógica del frontend
-├── uploads/           # Archivos cargados
-├── results/          # Resultados JSON generados
-└── README.md        # Este archivo
+OCRDockerApp/
+├── app.py                 # Rutas Flask, sesión y exportación
+├── recognition.py         # Códigos de barras, QR y OCR
+├── store.py               # Lotes en SQLite
+├── tests/smoke_test.py    # Prueba de humo dentro de Docker
+├── templates/             # Login e interfaz
+├── static/app.js          # Revisión y progreso de subida
+├── docs/screenshots/      # Grafos de code2flow
+├── data/                  # Base SQLite (no se versiona)
+└── uploads/               # Imágenes temporales, con límite de retención
 ```
 
 ## Formato de Resultados JSON
 
-Los resultados se estructuran de la siguiente manera:
+La exportación JSON sale de las filas confirmadas:
 
 ```json
 [
   {
-    "original_filename": "producto1.jpg",
-    "processed_filename": "uuid_producto1.jpg",
-    "upload_time": "2024-01-15T10:30:00",
-    "file_size": 245678,
-    "ocr_result": {
-      "raw_text": "CÓDIGO DE BARRAS: 1234567890123\\nSKU: ABC-123\\nPRECIO: $29.99",
-      "extracted_codes": {
-        "codigo_barras": ["1234567890123"],
-        "codigo_producto": ["ABC-123"],
-        "precio": ["29.99"]
-      },
-      "confidence": "high"
-    }
+    "filename": "producto1.jpg",
+    "code_type": "barcode",
+    "raw_value": "ABC123456",
+    "corrected_value": "ABC123456",
+    "timestamp": "2026-10-13T16:53:28",
+    "status": "accepted"
   }
 ]
 ```
 
-## Tipos de Códigos Detectados
+## Tipos de códigos
 
-La aplicación busca automáticamente los siguientes patrones:
-
-- **Códigos de barras**: Números de 8-13 dígitos
-- **Códigos de producto**: Alfanuméricos de 4-12 caracteres
-- **Números de serie**: Letras seguidas de números
-- **SKUs**: Prefijo SKU seguido de código
-- **Precios**: Formatos con o sin símbolo de dólar
+- **Código de barras o QR**: lo devuelve el decodificador y se propone con confianza alta
+- **SKU, serie o código de producto**: solo si el texto OCR trae una etiqueta (`SKU`, `SERIAL`, `SERIE`, `CODIGO`, `CODE`, `ITEM`)
+- Un precio o un número suelto no se guarda como código de inventario
 
 ## Configuración Avanzada
 
 ### Variables de Entorno
 
-- `PORT`: Puerto de la aplicación (por defecto: 8000)
-- `MAX_FILE_SIZE`: Tamaño máximo de archivo (por defecto: 16MB)
-- `TESSERACT_CMD`: Ruta personalizada a Tesseract
+- `SECRET_KEY`: obligatorio en producción y distinto de `dev-secret-key-change-in-production`
+- `APP_PASSWORD`: clave del operador; obligatoria en producción
+- `TESSERACT_CMD`: ruta del binario si no está en `/usr/bin/tesseract`
+- `OCR_LANGUAGE`: idiomas de Tesseract, por defecto `spa+eng`
+- `DATABASE_PATH`: archivo SQLite, por defecto `data/inventory.db`
+- `MAX_STORED_UPLOADS` y `UPLOAD_MAX_AGE_DAYS`: tope y antigüedad de `uploads/`
 
 ### Optimización del OCR
 

@@ -1,0 +1,122 @@
+digraph G {
+concentrate=true;
+splines="ortho";
+rankdir="LR";
+subgraph legend{
+    rank = min;
+    label = "legend";
+    Legend [shape=none, margin=0, label = <
+        <table cellspacing="0" cellpadding="0" border="1"><tr><td>Code2flow Legend</td></tr><tr><td>
+        <table cellspacing="0">
+        <tr><td>Regular function</td><td width="50px" bgcolor='#cccccc'></td></tr>
+        <tr><td>Trunk function (nothing calls this)</td><td bgcolor='#966F33'></td></tr>
+        <tr><td>Leaf function (this calls nothing else)</td><td bgcolor='#6db33f'></td></tr>
+        <tr><td>Function call</td><td><font color='black'>&#8594;</font></td></tr>
+        </table></td></tr></table>
+        >];
+}node_cb05f0b0 [label="0: (global)()" name="app::(global)" shape="rect" style="rounded,filled" fillcolor="#966F33" ];
+node_803aa518 [label="55: allowed_file()" name="app::allowed_file" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_fa7ceb7b [label="161: batch_payload()" name="app::batch_payload" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_572d4804 [label="59: cleanup_uploads()" name="app::cleanup_uploads" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_7e1176e8 [label="274: confirm_batch()" name="app::confirm_batch" shape="rect" style="rounded,filled" fillcolor="#966F33" ];
+node_fb601251 [label="301: export_csv()" name="app::export_csv" shape="rect" style="rounded,filled" fillcolor="#966F33" ];
+node_23ac2e0f [label="327: export_json()" name="app::export_json" shape="rect" style="rounded,filled" fillcolor="#966F33" ];
+node_6f5a29b6 [label="291: export_rows()" name="app::export_rows" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_7ff30bf6 [label="266: get_batch()" name="app::get_batch" shape="rect" style="rounded,filled" fillcolor="#966F33" ];
+node_b4c4628e [label="219: health_check()" name="app::health_check" shape="rect" style="rounded,filled" fillcolor="#966F33" ];
+node_f8f7c770 [label="80: image_is_readable()" name="app::image_is_readable" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_167c79aa [label="261: list_batches()" name="app::list_batches" shape="rect" style="rounded,filled" fillcolor="#966F33" ];
+node_03d68ea9 [label="89: process_upload()" name="app::process_upload" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_72a0b876 [label="132: store_result()" name="app::store_result" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_e3b72baa [label="234: upload_files()" name="app::upload_files" shape="rect" style="rounded,filled" fillcolor="#966F33" ];
+node_8e1e7774 [label="26: _tesseract_command()" name="recognition::_tesseract_command" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_ff1e9e55 [label="141: analyze_image()" name="recognition::analyze_image" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_9e4643ab [label="73: barcode_report()" name="recognition::barcode_report" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_739271c3 [label="20: configure_tesseract()" name="recognition::configure_tesseract" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_b878cbc8 [label="81: decode_symbols()" name="recognition::decode_symbols" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_5e17c58f [label="115: extract_ocr_text()" name="recognition::extract_ocr_text" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_cc20f18d [label="127: labeled_codes()" name="recognition::labeled_codes" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_c89e8c1f [label="101: preprocess_image()" name="recognition::preprocess_image" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_3b351f73 [label="30: tesseract_report()" name="recognition::tesseract_report" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_11a8af26 [label="15: __init__()" name="store::Store.__init__" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_fa6eef18 [label="29: _init_db()" name="store::Store._init_db" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_576f70d7 [label="178: _item_dict()" name="store::Store._item_dict" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_e7cfb9c1 [label="69: add_item()" name="store::Store.add_item" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_e4f81128 [label="144: confirm_items()" name="store::Store.confirm_items" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_85246197 [label="164: confirmed_rows()" name="store::Store.confirmed_rows" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_8cf14d6d [label="22: connect()" name="store::Store.connect" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_1a7198f0 [label="60: create_batch()" name="store::Store.create_batch" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_32b887b6 [label="119: get_batch()" name="store::Store.get_batch" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_b9403d53 [label="97: list_batches()" name="store::Store.list_batches" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_cb06009b [label="10: utc_now()" name="store::utc_now" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_cb05f0b0 -> node_739271c3 [color="#000000" penwidth="2"];
+node_cb05f0b0 -> node_3b351f73 [color="#000000" penwidth="2"];
+node_cb05f0b0 -> node_11a8af26 [color="#000000" penwidth="2"];
+node_7e1176e8 -> node_fa7ceb7b [color="#000000" penwidth="2"];
+node_7e1176e8 -> node_e4f81128 [color="#000000" penwidth="2"];
+node_7e1176e8 -> node_32b887b6 [color="#000000" penwidth="2"];
+node_7e1176e8 -> node_32b887b6 [color="#000000" penwidth="2"];
+node_fb601251 -> node_6f5a29b6 [color="#E69F00" penwidth="2"];
+node_23ac2e0f -> node_6f5a29b6 [color="#CC79A7" penwidth="2"];
+node_6f5a29b6 -> node_85246197 [color="#D55E00" penwidth="2"];
+node_6f5a29b6 -> node_32b887b6 [color="#D55E00" penwidth="2"];
+node_7ff30bf6 -> node_fa7ceb7b [color="#D55E00" penwidth="2"];
+node_7ff30bf6 -> node_32b887b6 [color="#D55E00" penwidth="2"];
+node_b4c4628e -> node_9e4643ab [color="#D55E00" penwidth="2"];
+node_b4c4628e -> node_3b351f73 [color="#D55E00" penwidth="2"];
+node_167c79aa -> node_b9403d53 [color="#56B4E9" penwidth="2"];
+node_03d68ea9 -> node_803aa518 [color="#E69F00" penwidth="2"];
+node_03d68ea9 -> node_f8f7c770 [color="#E69F00" penwidth="2"];
+node_03d68ea9 -> node_72a0b876 [color="#E69F00" penwidth="2"];
+node_03d68ea9 -> node_72a0b876 [color="#E69F00" penwidth="2"];
+node_03d68ea9 -> node_72a0b876 [color="#E69F00" penwidth="2"];
+node_03d68ea9 -> node_ff1e9e55 [color="#E69F00" penwidth="2"];
+node_72a0b876 -> node_e7cfb9c1 [color="#D55E00" penwidth="2"];
+node_e3b72baa -> node_572d4804 [color="#56B4E9" penwidth="2"];
+node_e3b72baa -> node_03d68ea9 [color="#56B4E9" penwidth="2"];
+node_e3b72baa -> node_1a7198f0 [color="#56B4E9" penwidth="2"];
+node_ff1e9e55 -> node_b878cbc8 [color="#0072B2" penwidth="2"];
+node_ff1e9e55 -> node_5e17c58f [color="#0072B2" penwidth="2"];
+node_ff1e9e55 -> node_cc20f18d [color="#0072B2" penwidth="2"];
+node_5e17c58f -> node_c89e8c1f [color="#CC79A7" penwidth="2"];
+node_3b351f73 -> node_8e1e7774 [color="#009E73" penwidth="2"];
+node_11a8af26 -> node_fa6eef18 [color="#D55E00" penwidth="2"];
+node_fa6eef18 -> node_8cf14d6d [color="#000000" penwidth="2"];
+node_e7cfb9c1 -> node_8cf14d6d [color="#E69F00" penwidth="2"];
+node_e7cfb9c1 -> node_cb06009b [color="#E69F00" penwidth="2"];
+node_e4f81128 -> node_8cf14d6d [color="#000000" penwidth="2"];
+node_85246197 -> node_8cf14d6d [color="#CC79A7" penwidth="2"];
+node_1a7198f0 -> node_8cf14d6d [color="#000000" penwidth="2"];
+node_1a7198f0 -> node_cb06009b [color="#000000" penwidth="2"];
+node_32b887b6 -> node_576f70d7 [color="#D55E00" penwidth="2"];
+node_32b887b6 -> node_8cf14d6d [color="#D55E00" penwidth="2"];
+node_b9403d53 -> node_8cf14d6d [color="#009E73" penwidth="2"];
+subgraph cluster_aa58d789 {
+    node_803aa518 node_572d4804 node_f8f7c770 node_03d68ea9 node_72a0b876 node_fa7ceb7b node_b4c4628e node_e3b72baa node_167c79aa node_7ff30bf6 node_7e1176e8 node_6f5a29b6 node_fb601251 node_23ac2e0f node_cb05f0b0;
+    label="File: app";
+    name="app";
+    style="filled";
+    graph[style=dotted];
+};
+subgraph cluster_c4a3ca0a {
+    node_739271c3 node_8e1e7774 node_3b351f73 node_9e4643ab node_b878cbc8 node_c89e8c1f node_5e17c58f node_cc20f18d node_ff1e9e55;
+    label="File: recognition";
+    name="recognition";
+    style="filled";
+    graph[style=dotted];
+};
+subgraph cluster_488c3edf {
+    node_cb06009b;
+    label="File: store";
+    name="store";
+    style="filled";
+    graph[style=dotted];
+    subgraph cluster_cf3767b5 {
+        node_11a8af26 node_8cf14d6d node_fa6eef18 node_1a7198f0 node_e7cfb9c1 node_b9403d53 node_32b887b6 node_e4f81128 node_85246197 node_576f70d7;
+        label="Class: Store";
+        name="Store";
+        style="filled";
+        graph[style=dotted];
+    };
+};
+}
